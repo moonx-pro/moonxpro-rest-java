@@ -22,7 +22,7 @@ public class ApiUtil {
     static final int WRITE_TIMEOUT = 60;
 
 
-    static final String API_URL = "http://192.168.10.54";
+    static final String API_URL = "https://exchange.moonx.pro";
 
     static final MediaType JSON = MediaType.parse("application/json");
 

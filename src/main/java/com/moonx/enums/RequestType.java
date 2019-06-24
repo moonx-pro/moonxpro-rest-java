@@ -1,5 +1,7 @@
 package com.moonx.enums;
-import static com.moonx.enums.ApiType.*;
+
+import static com.moonx.enums.ApiType.PRIVATE;
+import static com.moonx.enums.ApiType.PUBLIC;
 
 public enum RequestType {
 
@@ -13,7 +15,9 @@ public enum RequestType {
     ALL_OPEN_ORDERS_QUERY("exchangeApi/api/v1/order/query-all-open", PRIVATE),
     CANCEL_ORDER("exchangeApi/api/v1/order/cancel", PRIVATE),
     CANCEL_BULK("exchangeApi/api/v1/order/cancel-bulk", PRIVATE),
-    SYMBOLS("exchangeApi/api/v1/symbols/symbol-config", PRIVATE);
+    SYMBOLS("exchangeApi/api/v1/symbols/symbol-config", PRIVATE),
+    TRADE_DOWNLOAD_JSON("exchangeApi/api/v1/trades/json", PRIVATE),
+    TRADE_DOWNLOAD_XLSX("exchangeApi/api/v1/trades/xlsx", PRIVATE);
 
 
     public String uri;

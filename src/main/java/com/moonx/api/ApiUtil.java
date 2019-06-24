@@ -7,10 +7,14 @@ import com.moonx.dto.response.ApiResponse;
 import com.moonx.enums.RequestType;
 import okhttp3.*;
 import okhttp3.OkHttpClient.Builder;
+import okio.BufferedSink;
+import okio.Okio;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.moonx.api.ApiSignature.generateSign;
@@ -31,6 +35,35 @@ public class ApiUtil {
 
     public <T> ApiResponse<T> sendRequest(RequestType requestType, Object data, String businessNo, String key, Class<T> responseType) throws IOException {
 
+        RequestBody body = getRequestBody(data, businessNo, key);
+        Request.Builder builder = new Request.Builder().url(API_URL + "/" + requestType.uri).post(body);
+        Request request = builder.build();
+        System.out.println("Request: "+ requestType);
+        Response response = client.newCall(request).execute();
+        ApiResponse resDto = JSONObject.parseObject(response.body().string(), ApiResponse.class);
+        return resDto;
+    }
+
+    public File sendRequest_(RequestType requestType, Object data, String businessNo, String key) throws IOException {
+
+        RequestBody body = getRequestBody(data, businessNo, key);
+        String respType = "application/vnd.ms-excel";
+        Request.Builder builder = new Request.Builder().url(API_URL + "/" + requestType.uri).post(body).header("Accept", respType).header("Content-Type","application/json");
+        Request request = builder.build();
+        System.out.println("Request: "+ requestType);
+        Response response = client.newCall(request).execute();
+
+        File downloadedFile= new File(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString() + ".xlsx");
+
+        if (MediaType.parse(respType).equals(response.body().contentType())){
+            BufferedSink sink = Okio.buffer(Okio.sink(downloadedFile));
+            sink.writeAll(response.body().source());
+            sink.close();
+        }
+        return downloadedFile;
+    }
+
+    private RequestBody getRequestBody(Object data, String businessNo, String key) {
         String nonceStr = RandomStringUtils.randomNumeric(32);
         int timestamp = (int) (System.currentTimeMillis() / 1000L);
         String sign;
@@ -52,13 +85,7 @@ public class ApiUtil {
         String jsonData = JSONObject.toJSONString(apiRequestDto, SerializerFeature.WriteMapNullValue,
                 SerializerFeature.QuoteFieldNames, SerializerFeature.WriteNullListAsEmpty,
                 SerializerFeature.WriteEnumUsingName);
-        RequestBody body = RequestBody.create(JSON, jsonData);
-        Request.Builder builder = new Request.Builder().url(API_URL + "/" + requestType.uri).post(body);
-        Request request = builder.build();
-        System.out.println("Request: "+ requestType);
-        Response response = client.newCall(request).execute();
-        ApiResponse resDto = JSONObject.parseObject(response.body().string(), ApiResponse.class);
-        return resDto;
+        return RequestBody.create(JSON, jsonData);
     }
 
     public JSONObject sendRequest(RequestType requestType, Map<String, String> params) throws IOException {

@@ -7,7 +7,6 @@ import com.moonx.enums.TradeCoinType;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 public class Main {
     static final String BUSINESS_NO = "BUSINESS_NO";
@@ -93,6 +92,20 @@ public class Main {
         bulkCancelRequest.setSymbol("BTC_ETH"); // will be ignored if exchangeOrderIds are provided
         bulkCancelRequest.setExchangeOrderIds("0,1,2");
         //printResponse(client.bulkCancel(bulkCancelRequest));
+
+        /************************* Trade Data Request **************************/
+        TradeDownloadRequest tradeDownloadRequest = new TradeDownloadRequest();
+        tradeDownloadRequest.setFromDate(1560988800000L);
+        tradeDownloadRequest.setToDate(1561161600000L);
+        tradeDownloadRequest.setSymbols("USDT_BTC,BTC_ETH");
+        //printResponse(client.tradeDataAsJSON(tradeDownloadRequest));
+
+        /************************* Trade Data Download **************************/
+        TradeDownloadRequest tradeDownloadRequest_ = new TradeDownloadRequest();
+        tradeDownloadRequest_.setFromDate(1560988800000L);
+        tradeDownloadRequest_.setToDate(1561161600000L);
+        tradeDownloadRequest_.setSymbols("USDT_BTC,BTC_ETH");
+        //printResponse("File has been downloaded to :: " + client.tradeDataAsXLSX(tradeDownloadRequest_));
 
 
     }

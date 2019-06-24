@@ -5,6 +5,7 @@ import com.moonx.dto.request.*;
 import com.moonx.dto.response.ApiResponse;
 import com.moonx.enums.RequestType;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -44,6 +45,14 @@ public class ApiClient {
 
     public ApiResponse<String> symbols(SymbolQueryRequest symbolQueryRequest) throws IOException {
         return new ApiUtil().sendRequest(RequestType.SYMBOLS, symbolQueryRequest, this.businessNo, this.apiSecret, String.class);
+    }
+
+    public ApiResponse<String> tradeDataAsJSON(TradeDownloadRequest tradeDownloadRequest) throws IOException {
+        return new ApiUtil().sendRequest(RequestType.TRADE_DOWNLOAD_JSON, tradeDownloadRequest, this.businessNo, this.apiSecret, String.class);
+    }
+
+    public File tradeDataAsXLSX(TradeDownloadRequest tradeDownloadRequest) throws IOException {
+        return new ApiUtil().sendRequest_(RequestType.TRADE_DOWNLOAD_XLSX, tradeDownloadRequest, this.businessNo, this.apiSecret);
     }
 
     public static JSONObject depth(String symbol) throws IOException {

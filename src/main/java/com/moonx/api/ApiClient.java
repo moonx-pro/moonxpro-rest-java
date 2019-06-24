@@ -23,6 +23,10 @@ public class ApiClient {
         return new ApiUtil().sendRequest(RequestType.NEW_ORDER, newOrderRequest, this.businessNo, this.apiSecret, String.class);
     }
 
+    public ApiResponse<String> createModifyOrder(ModifyOrderRequest modifyOrderRequest) throws IOException {
+        return new ApiUtil().sendRequest(RequestType.MODIFY_ORDER, modifyOrderRequest, this.businessNo, this.apiSecret, String.class);
+    }
+
     public ApiResponse<String> assetQuery(AssetQueryRequest assetQueryRequest) throws IOException {
         return new ApiUtil().sendRequest(RequestType.ASSET_QUERY, assetQueryRequest, this.businessNo, this.apiSecret, String.class);
     }

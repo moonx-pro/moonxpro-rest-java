@@ -1,5 +1,6 @@
 package com.moonx.dto.request;
 
+import com.moonx.enums.TimeInForce;
 import com.moonx.enums.TradeCoinFlag;
 import com.moonx.enums.TradeCoinType;
 
@@ -9,16 +10,18 @@ public class NewOrderRequest {
     private TradeCoinType tradeCoinType;
     private String price;
     private String amount;
+    private TimeInForce timeInForce;
 
     public NewOrderRequest() {
     }
 
-    public NewOrderRequest(String symbol, TradeCoinFlag tradeCoinFlag, TradeCoinType tradeCoinType, String price, String amount) {
+    public NewOrderRequest(String symbol, TradeCoinFlag tradeCoinFlag, TradeCoinType tradeCoinType, String price, String amount, TimeInForce timeInForce) {
         this.symbol = symbol;
         this.tradeCoinFlag = tradeCoinFlag;
         this.tradeCoinType = tradeCoinType;
         this.price = price;
         this.amount = amount;
+        this.timeInForce = timeInForce;
     }
 
     public String getSymbol() {
@@ -59,5 +62,25 @@ public class NewOrderRequest {
 
     public void setAmount(String amount) {
         this.amount = amount;
+    }
+
+    public TimeInForce getTimeInForce() {
+        return timeInForce;
+    }
+
+    public void setTimeInForce(TimeInForce timeInForce) {
+        this.timeInForce = timeInForce;
+    }
+
+    @Override
+    public String toString() {
+        return "NewOrderRequest{" +
+                "symbol='" + symbol + '\'' +
+                ", tradeCoinFlag=" + tradeCoinFlag +
+                ", tradeCoinType=" + tradeCoinType +
+                ", price='" + price + '\'' +
+                ", amount='" + amount + '\'' +
+                ", timeInForce=" + timeInForce +
+                '}';
     }
 }

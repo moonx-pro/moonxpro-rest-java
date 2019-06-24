@@ -2,11 +2,13 @@ package com.moonx.api;
 
 import com.alibaba.fastjson.JSONObject;
 import com.moonx.dto.request.*;
+import com.moonx.enums.TimeInForce;
 import com.moonx.enums.TradeCoinFlag;
 import com.moonx.enums.TradeCoinType;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 public class Main {
     static final String BUSINESS_NO = "BUSINESS_NO";
@@ -65,7 +67,18 @@ public class Main {
         order.setPrice("0.03212"); // will be ignored if TradeCoinFlag is MARKET.
         order.setTradeCoinFlag(TradeCoinFlag.FIXED);
         order.setTradeCoinType(TradeCoinType.BUY);
+        order.setTimeInForce(TimeInForce.GTC);
         //printResponse(client.createNewOrder(order));
+
+        /************************* Post Modify Order Request ************************/
+        ModifyOrderRequest modify = new ModifyOrderRequest();
+        modify.setExchangeOrderId(95);
+        modify.setTradeCoinFlag(TradeCoinFlag.FIXED);
+        modify.setAmount(new BigDecimal("0.125"));
+        modify.setPrice(new BigDecimal("0.033"));
+        modify.setTimeInForce(TimeInForce.GTC);
+        modify.setInflightMitigation(true);
+        printResponse(client.createModifyOrder(modify));
 
 
         /************************ Post Order Query Request*************************/

@@ -11,6 +11,7 @@ public enum RequestType {
     KLINE("dataload/kline-query/pages", PUBLIC),
     ASSET_QUERY("exchangeApi/api/v1/asset", PRIVATE),
     NEW_ORDER("exchangeApi/api/v1/order/submit", PRIVATE),
+    MODIFY_ORDER("exchangeApi/api/v1/order/modify", PRIVATE),
     ORDER_QUERY("exchangeApi/api/v1/order/query", PRIVATE),
     ALL_OPEN_ORDERS_QUERY("exchangeApi/api/v1/order/query-all-open", PRIVATE),
     CANCEL_ORDER("exchangeApi/api/v1/order/cancel", PRIVATE),

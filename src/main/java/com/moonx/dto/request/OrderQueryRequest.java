@@ -1,15 +1,15 @@
 package com.moonx.dto.request;
 
 public class OrderQueryRequest {
-    private long exchangeOrderId;
+    private long orderNo;
     private String symbol;
 
-    public long getExchangeOrderId() {
-        return exchangeOrderId;
+    public long getOrderNo() {
+        return orderNo;
     }
 
-    public void setExchangeOrderId(long exchangeOrderId) {
-        this.exchangeOrderId = exchangeOrderId;
+    public void setOrderNo(long orderNo) {
+        this.orderNo = orderNo;
     }
 
     public String getSymbol() {

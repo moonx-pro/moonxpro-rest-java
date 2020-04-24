@@ -1,13 +1,13 @@
 package com.moonx.dto.request;
 
 public class CancelOrderRequest {
-    long exchangeOrderId;
+    long orderNo;
 
-    public long getExchangeOrderId() {
-        return exchangeOrderId;
+    public long getOrderNo() {
+        return orderNo;
     }
 
-    public void setExchangeOrderId(long exchangeOrderId) {
-        this.exchangeOrderId = exchangeOrderId;
+    public void setOrderNo(long orderNo) {
+        this.orderNo = orderNo;
     }
 }

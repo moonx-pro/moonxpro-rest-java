@@ -1,6 +1,6 @@
 package com.moonx.enums;
 
-public enum TradeCoinType {
+public enum OrderSide {
     BUY,
     SELL
 }

@@ -7,12 +7,7 @@ import java.util.stream.Collectors;
 
 public class ApiSignature {
 
-    private static final Comparator<Map.Entry<String, Object>> keyComparator = new Comparator<Map.Entry<String, Object>>() {
-    @Override
-    public int compare(Map.Entry<String, Object> o1, Map.Entry<String, Object> o2) {
-        return o1.getKey().compareTo(o2.getKey());
-        }
-    };
+    private static final Comparator<Map.Entry<String, Object>> keyComparator = Comparator.comparing(Map.Entry::getKey);
 
     public static String generateSign(Map<String, Object> requestData, long timestamp, String nonceStr, String apiSecret) {
         Map<String, Object> dataJson = new HashMap<>();

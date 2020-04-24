@@ -2,23 +2,22 @@ package com.moonx.api;
 
 import com.alibaba.fastjson.JSONObject;
 import com.moonx.dto.request.*;
-import com.moonx.enums.TimeInForce;
-import com.moonx.enums.TradeCoinFlag;
-import com.moonx.enums.TradeCoinType;
+import com.moonx.enums.*;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 
 public class Main {
-    static final String BUSINESS_NO = "BUSINESS_NO";
-    static final String API_SECRET = "API_SECRET";
+    static final String BUSINESS_NO = "Change_Here";
+    static final String API_SECRET = "Change_Here";
 
     public static void main(String[] args) {
 
         try {
-            publicApiTest();
-            privateApiTest();
+             publicApiTest();
+             futuresApiTest();
+             spotApiTest();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -44,83 +43,159 @@ public class Main {
 
     }
 
-    static void privateApiTest() throws IOException {
+    static void futuresApiTest() throws IOException {
         ApiClient client = new ApiClient(BUSINESS_NO, API_SECRET);
 
 
-        /**************************** Symbol Request *******************************/
-        SymbolQueryRequest symbolQuery = new SymbolQueryRequest();
-        symbolQuery.setSymbol("BTC_ETH"); //Optional. List of all available symbols will be returned if not provided or if invalid value is passed
-        //printResponse(client.symbols(symbolQuery));
+        /************************* New Order ************************/
+        OrderRequest order = new OrderRequest();
+        order.setSymbol("BTC_USD");
+        order.setQuantity(new BigDecimal("100"));
+        order.setPrice(new BigDecimal("7000.5"));
+        order.setOrderType(OrderType.LIMIT);
+        order.setOrderSide(OrderSide.BUY);
+        order.setTimeInForce(TimeInForce.GTC);
+        order.setExecutionType(ExecutionType.REGULAR);
+        // order.setTriggerOn(TriggerOn.LAST_TRADED_PRICE);
+        // order.setTriggerPrice(new BigDecimal("7000"));
+        // order.setDisclosedQuantity(new BigDecimal("100"));
+        // printResponse(client.createNewOrder(order));
+
+        /************************* Modify Order ************************/
+        OrderRequest modify = new OrderRequest();
+        modify.setOrderNo(1234);
+        modify.setPrice(new BigDecimal("8000"));
+        // modify.setQuantity(new BigDecimal("50"));
+        // modify.setTriggerPrice(new BigDecimal("8000"));
+        //printResponse(client.modifyOrder(modify));
 
 
-        /**************************Post Asset Query Request************************/
+        /************************* Cancel Order ************************/
+        CancelOrderRequest cancelOrderRequest = new CancelOrderRequest();
+        cancelOrderRequest.setOrderNo(4050);
+        // printResponse(client.cancelOrder(cancelOrderRequest));
+
+
+        /************************* Modify Leverage ************************/
+        ModifyLeverageDto modifyLeverageDto = new ModifyLeverageDto();
+        modifyLeverageDto.setSymbol("BTC_USD");
+        modifyLeverageDto.setLeverage(new BigDecimal("2"));
+        // printResponse(client.modifyLeverage(modifyLeverageDto));
+
+
+        /************************ Get Open Order Details *************************/
+        OrderQueryRequest orderQuery = new OrderQueryRequest();
+        orderQuery.setOrderNo(4050);
+        // printResponse(client.getOrderDetails(orderQuery)); // Success response will be returned only if order is in Open state.
+
+
+        OrderQueryRequest query = new OrderQueryRequest();
+        /************************ Get Open Orders ************************/
+        query.setSymbol("BTC_USD");
+        // printResponse(client.getOpenOrders(query));
+
+        /************************ Get Stop Orders ************************/
+        query.setSymbol("BTC_USD");
+        // printResponse(client.getStops(query));
+
+
+        /************************ Get Fills ************************/
+        query.setSymbol("BTC_USD");
+        // printResponse(client.getFills(query));
+
+
+        /************************ Get Order History ************************/
+        query.setSymbol("BTC_USD");
+        // printResponse(client.getOrderHistory(query));
+
+
+        /************************* Assets Query **************************/
         AssetQueryRequest assetQuery = new AssetQueryRequest();
         assetQuery.setAssetCode("BTC");
-        //printResponse(client.assetQuery(assetQuery));
+        // printResponse(client.assetQuery(assetQuery));
 
 
-        /************************* Post New Order Request ************************/
-        NewOrderRequest order = new NewOrderRequest();
+        /************************* Get Future Account Info **************************/
+        AssetQueryRequest futureInfoQuery = new AssetQueryRequest();
+        futureInfoQuery.setSymbol("BTC_USD");
+         printResponse(client.getFutureInfo(futureInfoQuery));
+
+
+        /**************************** Get Symbol Config *******************************/
+        SymbolQueryRequest symbolQuery = new SymbolQueryRequest();
+        symbolQuery.setSymbol("BTC_USD");
+        // printResponse(client.symbols(symbolQuery));
+    }
+
+
+
+    static void spotApiTest() throws IOException {
+        ApiClient client = new ApiClient(BUSINESS_NO, API_SECRET);
+
+
+        /************************* New Order ************************/
+        OrderRequest order = new OrderRequest();
         order.setSymbol("BTC_ETH");
-        order.setAmount("0.125");
-        order.setPrice("0.03212"); // will be ignored if TradeCoinFlag is MARKET.
-        order.setTradeCoinFlag(TradeCoinFlag.FIXED);
-        order.setTradeCoinType(TradeCoinType.BUY);
+        order.setQuantity(new BigDecimal("1"));
+        order.setPrice(new BigDecimal("0.0231"));
+        order.setOrderType(OrderType.LIMIT);
+        order.setOrderSide(OrderSide.BUY);
         order.setTimeInForce(TimeInForce.GTC);
-        //printResponse(client.createNewOrder(order));
+        // printResponse(client.createNewOrder(order));
 
-        /************************* Post Modify Order Request ************************/
-        ModifyOrderRequest modify = new ModifyOrderRequest();
-        modify.setExchangeOrderId(95);
-        modify.setTradeCoinFlag(TradeCoinFlag.FIXED);
-        modify.setAmount(new BigDecimal("0.125"));
-        modify.setPrice(new BigDecimal("0.033"));
-        modify.setTimeInForce(TimeInForce.GTC);
-        modify.setInflightMitigation(true);
-        printResponse(client.createModifyOrder(modify));
+        /************************* Modify Order ************************/
+        OrderRequest modify = new OrderRequest();
+        modify.setOrderNo(1234);
+        modify.setPrice(new BigDecimal("8000"));
+        // modify.setQuantity(new BigDecimal("50"));
+        // modify.setTriggerPrice(new BigDecimal("8000"));
+        // printResponse(client.modifyOrder(modify));
 
 
-        /************************ Post Order Query Request*************************/
+        /************************* Cancel Order ************************/
+        CancelOrderRequest cancelOrderRequest = new CancelOrderRequest();
+        cancelOrderRequest.setOrderNo(4050);
+        // printResponse(client.cancelOrder(cancelOrderRequest));
+
+
+
+        /************************ Get Open Order Details *************************/
         OrderQueryRequest orderQuery = new OrderQueryRequest();
-        orderQuery.setExchangeOrderId(42097);
-        //printResponse(client.orderQuery(orderQuery));
+        orderQuery.setOrderNo(4050);
+        // printResponse(client.getOrderDetails(orderQuery)); // Success response will be returned only if order is in Open state.
 
 
-        /************************ Post Open Order Query Request************************/
-        OrderQueryRequest allOpenOrders = new OrderQueryRequest();
-        allOpenOrders.setSymbol("BTC_ETH");
-        //printResponse(client.queryAllOpen(allOpenOrders));
+        OrderQueryRequest query = new OrderQueryRequest();
+        /************************ Get Open Orders ************************/
+        query.setSymbol("BTC_USD");
+        // printResponse(client.getOpenOrders(query));
+
+        /************************ Get Stop Orders ************************/
+        query.setSymbol("BTC_USD");
+        // printResponse(client.getStops(query));
+
+
+        /************************ Get Fills ************************/
+        query.setSymbol("BTC_USD");
+        // printResponse(client.getFills(query));
+
+
+        /************************ Get Order History ************************/
+        query.setSymbol("BTC_USD");
+        // printResponse(client.getOrderHistory(query));
+
+
+        /************************* Assets Query **************************/
+        AssetQueryRequest assetQuery = new AssetQueryRequest();
+        assetQuery.setAssetCode("BTC");
+        // printResponse(client.assetQuery(assetQuery));
 
 
 
-        /************************* Post Cancel Order Request **************************/
-        CancelOrderRequest cancelOrder = new CancelOrderRequest();
-        cancelOrder.setExchangeOrderId(1);
-        //printResponse(client.cancelOrder(cancelOrder));
-
-
-        /************************ Post Bulk Cancel Request*****************************/
-        BulkCancelRequest bulkCancelRequest = new BulkCancelRequest();
-        bulkCancelRequest.setSymbol("BTC_ETH"); // will be ignored if exchangeOrderIds are provided
-        bulkCancelRequest.setExchangeOrderIds("0,1,2");
-        //printResponse(client.bulkCancel(bulkCancelRequest));
-
-        /************************* Trade Data Request **************************/
-        TradeDownloadRequest tradeDownloadRequest = new TradeDownloadRequest();
-        tradeDownloadRequest.setFromDate(1560988800000L);
-        tradeDownloadRequest.setToDate(1561161600000L);
-        tradeDownloadRequest.setSymbols("USDT_BTC,BTC_ETH");
-        //printResponse(client.tradeDataAsJSON(tradeDownloadRequest));
-
-        /************************* Trade Data Download **************************/
-        TradeDownloadRequest tradeDownloadRequest_ = new TradeDownloadRequest();
-        tradeDownloadRequest_.setFromDate(1560988800000L);
-        tradeDownloadRequest_.setToDate(1561161600000L);
-        tradeDownloadRequest_.setSymbols("USDT_BTC,BTC_ETH");
-        //printResponse("File has been downloaded to :: " + client.tradeDataAsXLSX(tradeDownloadRequest_));
-
-
+        /**************************** Get Symbol Config *******************************/
+        SymbolQueryRequest symbolQuery = new SymbolQueryRequest();
+        symbolQuery.setSymbol("BTC_USD");
+        // printResponse(client.symbols(symbolQuery));
     }
 
 

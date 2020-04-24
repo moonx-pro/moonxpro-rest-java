@@ -5,7 +5,6 @@ import com.moonx.dto.request.*;
 import com.moonx.dto.response.ApiResponse;
 import com.moonx.enums.RequestType;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -19,44 +18,56 @@ public class ApiClient {
         this.apiSecret = apiSecret;
     }
 
-    public ApiResponse<String> createNewOrder(NewOrderRequest newOrderRequest) throws IOException {
-        return new ApiUtil().sendRequest(RequestType.NEW_ORDER, newOrderRequest, this.businessNo, this.apiSecret, String.class);
+    public ApiResponse<String> createNewOrder(OrderRequest orderRequest) throws IOException {
+        return new ApiUtil().sendRequest(RequestType.NEW_ORDER, orderRequest, this.businessNo, this.apiSecret, String.class);
     }
 
-    public ApiResponse<String> createModifyOrder(ModifyOrderRequest modifyOrderRequest) throws IOException {
+    public ApiResponse<String> modifyOrder(OrderRequest modifyOrderRequest) throws IOException {
         return new ApiUtil().sendRequest(RequestType.MODIFY_ORDER, modifyOrderRequest, this.businessNo, this.apiSecret, String.class);
     }
 
-    public ApiResponse<String> assetQuery(AssetQueryRequest assetQueryRequest) throws IOException {
-        return new ApiUtil().sendRequest(RequestType.ASSET_QUERY, assetQueryRequest, this.businessNo, this.apiSecret, String.class);
+    public ApiResponse<String> modifyLeverage(ModifyLeverageDto modifyLeverageDto) throws IOException {
+        return new ApiUtil().sendRequest(RequestType.MODIFY_LEVERAGE, modifyLeverageDto, this.businessNo, this.apiSecret, String.class);
     }
 
     public ApiResponse<String> cancelOrder(CancelOrderRequest cancelOrderRequest) throws IOException {
         return new ApiUtil().sendRequest(RequestType.CANCEL_ORDER, cancelOrderRequest, this.businessNo, this.apiSecret, String.class);
     }
 
-    public ApiResponse<String> bulkCancel(BulkCancelRequest bulkCancelReq) throws IOException {
-        return new ApiUtil().sendRequest(RequestType.CANCEL_BULK, bulkCancelReq, this.businessNo, this.apiSecret, String.class);
-    }
-
-    public ApiResponse<String> orderQuery(OrderQueryRequest orderQueryRequest) throws IOException {
+    public ApiResponse<String> getOrderDetails(OrderQueryRequest orderQueryRequest) throws IOException {
         return new ApiUtil().sendRequest(RequestType.ORDER_QUERY, orderQueryRequest, this.businessNo, this.apiSecret, String.class);
     }
 
-    public ApiResponse<String> queryAllOpen(OrderQueryRequest orderQueryRequest) throws IOException {
-        return new ApiUtil().sendRequest(RequestType.ALL_OPEN_ORDERS_QUERY, orderQueryRequest, this.businessNo, this.apiSecret, String.class);
+    public ApiResponse<String> getOpenOrders(OrderQueryRequest orderQueryRequest) throws IOException {
+        return new ApiUtil().sendRequest(RequestType.GET_OPEN_ORDERS, orderQueryRequest, this.businessNo, this.apiSecret, String.class);
+    }
+
+    public ApiResponse<String> getStops(OrderQueryRequest orderQueryRequest) throws IOException {
+        return new ApiUtil().sendRequest(RequestType.GET_STOPS, orderQueryRequest, this.businessNo, this.apiSecret, String.class);
+    }
+
+    public ApiResponse<String> getFills(OrderQueryRequest orderQueryRequest) throws IOException {
+        return new ApiUtil().sendRequest(RequestType.GET_FILLS, orderQueryRequest, this.businessNo, this.apiSecret, String.class);
+    }
+
+    public ApiResponse<String> getOrderHistory(OrderQueryRequest orderQueryRequest) throws IOException {
+        return new ApiUtil().sendRequest(RequestType.GET_ORDER_HISTORY, orderQueryRequest, this.businessNo, this.apiSecret, String.class);
+    }
+
+    public ApiResponse<String> assetQuery(AssetQueryRequest assetQueryRequest) throws IOException {
+        return new ApiUtil().sendRequest(RequestType.ASSET_QUERY, assetQueryRequest, this.businessNo, this.apiSecret, String.class);
+    }
+
+    public ApiResponse<String> getFutureInfo(AssetQueryRequest assetQueryRequest) throws IOException {
+        return new ApiUtil().sendRequest(RequestType.GET_FUTURE_INFO, assetQueryRequest, this.businessNo, this.apiSecret, String.class);
     }
 
     public ApiResponse<String> symbols(SymbolQueryRequest symbolQueryRequest) throws IOException {
-        return new ApiUtil().sendRequest(RequestType.SYMBOLS, symbolQueryRequest, this.businessNo, this.apiSecret, String.class);
+        return new ApiUtil().sendRequest(RequestType.SYMBOL_CONFIG, symbolQueryRequest, this.businessNo, this.apiSecret, String.class);
     }
 
     public ApiResponse<String> tradeDataAsJSON(TradeDownloadRequest tradeDownloadRequest) throws IOException {
         return new ApiUtil().sendRequest(RequestType.TRADE_DOWNLOAD_JSON, tradeDownloadRequest, this.businessNo, this.apiSecret, String.class);
-    }
-
-    public File tradeDataAsXLSX(TradeDownloadRequest tradeDownloadRequest) throws IOException {
-        return new ApiUtil().sendRequest_(RequestType.TRADE_DOWNLOAD_XLSX, tradeDownloadRequest, this.businessNo, this.apiSecret);
     }
 
     public static JSONObject depth(String symbol) throws IOException {

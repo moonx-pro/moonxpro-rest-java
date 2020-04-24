@@ -26,7 +26,7 @@ public class ApiUtil {
     static final int WRITE_TIMEOUT = 60;
 
 
-    static final String API_URL = System.getProperty("moonx.api.url", "https://exchange.moonx.pro");
+    static final String API_URL = System.getProperty("moonx.api.url", "https://exchange-demo.moonx.pro");
 
     static final MediaType JSON = MediaType.parse("application/json");
 

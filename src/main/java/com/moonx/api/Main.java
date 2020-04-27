@@ -2,22 +2,30 @@ package com.moonx.api;
 
 import com.alibaba.fastjson.JSONObject;
 import com.moonx.dto.request.*;
-import com.moonx.enums.*;
+import com.moonx.enums.ExecutionType;
+import com.moonx.enums.OrderSide;
+import com.moonx.enums.OrderType;
+import com.moonx.enums.TimeInForce;
+import com.moonx.ws.StreamKey;
+import com.moonx.ws.Subscription;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Main {
     static final String BUSINESS_NO = "Change_Here";
     static final String API_SECRET = "Change_Here";
 
     public static void main(String[] args) {
-
         try {
-             publicApiTest();
-             futuresApiTest();
-             spotApiTest();
+            ApiClient client = new ApiClient(BUSINESS_NO, API_SECRET);
+            publicApiTest();
+            futuresApiTest(client);
+            spotApiTest(client);
+            websocketTest(client);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -43,8 +51,7 @@ public class Main {
 
     }
 
-    static void futuresApiTest() throws IOException {
-        ApiClient client = new ApiClient(BUSINESS_NO, API_SECRET);
+    static void futuresApiTest(ApiClient client) throws IOException {
 
 
         /************************* New Order ************************/
@@ -118,7 +125,7 @@ public class Main {
         /************************* Get Future Account Info **************************/
         AssetQueryRequest futureInfoQuery = new AssetQueryRequest();
         futureInfoQuery.setSymbol("BTC_USD");
-         printResponse(client.getFutureInfo(futureInfoQuery));
+        printResponse(client.getFutureInfo(futureInfoQuery));
 
 
         /**************************** Get Symbol Config *******************************/
@@ -129,10 +136,7 @@ public class Main {
 
 
 
-    static void spotApiTest() throws IOException {
-        ApiClient client = new ApiClient(BUSINESS_NO, API_SECRET);
-
-
+    static void spotApiTest(ApiClient client) throws IOException {
         /************************* New Order ************************/
         OrderRequest order = new OrderRequest();
         order.setSymbol("BTC_ETH");
@@ -196,6 +200,21 @@ public class Main {
         SymbolQueryRequest symbolQuery = new SymbolQueryRequest();
         symbolQuery.setSymbol("BTC_USD");
         // printResponse(client.symbols(symbolQuery));
+    }
+
+
+    static void websocketTest(ApiClient client) throws IOException {
+        /************************* Websocket **************************/
+        client.subscribe(new Subscription().streamKey(StreamKey.parse("stack@btc_usd")).throttleMillis(2000));
+        client.subscribe(new Subscription().streamKey(StreamKey.parse("user-future")));
+
+        //Un-subscribing stack@btc_usd after 10 seconds.
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                client.unSubscribe(new Subscription().streamKey(StreamKey.parse("stack@btc_usd")));
+            }
+        }, 10000L);
     }
 
 

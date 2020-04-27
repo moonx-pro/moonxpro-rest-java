@@ -26,7 +26,9 @@ public class ApiUtil {
     static final int WRITE_TIMEOUT = 60;
 
 
-    static final String API_URL = System.getProperty("moonx.api.url", "https://exchange-demo.moonx.pro");
+    static final String API_HOST = System.getProperty("moonx.api.host", "exchange-demo.moonx.pro");
+    static final boolean API_SSL = Boolean.parseBoolean(System.getProperty("moonx.api.ssl", "true"));
+    static final String API_URL = (API_SSL ? "https" : "http") + "://" + API_HOST;
 
     static final MediaType JSON = MediaType.parse("application/json");
 
@@ -64,6 +66,14 @@ public class ApiUtil {
     }
 
     private RequestBody getRequestBody(Object data, String businessNo, String key) {
+        ApiRequest apiRequestDto = apiRequest(data, businessNo, key);
+        String jsonData = JSONObject.toJSONString(apiRequestDto, SerializerFeature.WriteMapNullValue,
+                SerializerFeature.QuoteFieldNames, SerializerFeature.WriteNullListAsEmpty,
+                SerializerFeature.WriteEnumUsingName);
+        return RequestBody.create(JSON, jsonData);
+    }
+
+    public ApiRequest apiRequest(Object data, String businessNo, String key) {
         String nonceStr = RandomStringUtils.randomNumeric(32);
         int timestamp = (int) (System.currentTimeMillis() / 1000L);
         String sign;
@@ -82,10 +92,7 @@ public class ApiUtil {
         apiRequestDto.setSign(sign);
         apiRequestDto.setBusinessNo(businessNo);
 
-        String jsonData = JSONObject.toJSONString(apiRequestDto, SerializerFeature.WriteMapNullValue,
-                SerializerFeature.QuoteFieldNames, SerializerFeature.WriteNullListAsEmpty,
-                SerializerFeature.WriteEnumUsingName);
-        return RequestBody.create(JSON, jsonData);
+        return apiRequestDto;
     }
 
     public JSONObject sendRequest(RequestType requestType, Map<String, String> params) throws IOException {

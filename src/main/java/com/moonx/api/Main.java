@@ -22,9 +22,9 @@ public class Main {
     public static void main(String[] args) {
         try {
             ApiClient client = new ApiClient(BUSINESS_NO, API_SECRET);
-            publicApiTest();
-            futuresApiTest(client);
-            spotApiTest(client);
+            //publicApiTest();
+            //futuresApiTest(client);
+            //spotApiTest(client);
             websocketTest(client);
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,7 +125,7 @@ public class Main {
         /************************* Get Future Account Info **************************/
         AssetQueryRequest futureInfoQuery = new AssetQueryRequest();
         futureInfoQuery.setSymbol("BTC_USD");
-        printResponse(client.getFutureInfo(futureInfoQuery));
+        //printResponse(client.getFutureInfo(futureInfoQuery));
 
 
         /**************************** Get Symbol Config *******************************/
@@ -205,14 +205,17 @@ public class Main {
 
     static void websocketTest(ApiClient client) throws IOException {
         /************************* Websocket **************************/
-        client.subscribe(new Subscription().streamKey(StreamKey.parse("stack@btc_usd")).throttleMillis(2000));
+        client.subscribe(new Subscription().streamKey(StreamKey.parse("stack@btc_eth")).throttleMillis(2000));
         client.subscribe(new Subscription().streamKey(StreamKey.parse("user-future")));
+        client.subscribe(new Subscription().streamKey(StreamKey.parse("user-order")));
+        client.subscribe(new Subscription().streamKey(StreamKey.parse("user-trade")));
+        client.subscribe(new Subscription().streamKey(StreamKey.parse("user-asset")));
 
         //Un-subscribing stack@btc_usd after 10 seconds.
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                client.unSubscribe(new Subscription().streamKey(StreamKey.parse("stack@btc_usd")));
+                client.unSubscribe(new Subscription().streamKey(StreamKey.parse("stack@btc_eth")));
             }
         }, 10000L);
     }

@@ -6,22 +6,26 @@ import com.moonx.dto.response.ApiResponse;
 import com.moonx.enums.RequestType;
 import com.moonx.ws.Store;
 import com.moonx.ws.Subscription;
-import com.moonx.ws.Session;
+import com.moonx.ws.WebsocketSession;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 
 import java.io.IOException;
 import java.util.HashMap;
 
 public class ApiClient {
 
-    final String businessNo;
-    final String apiSecret;
-    private Session session;
+    private final String businessNo;
+    private final String apiSecret;
+    private WebsocketSession websocketSession;
+    @Getter
+    @Accessors(fluent = true)
     private Store store;
 
     public ApiClient(String businessNo, String apiSecret){
         this.businessNo = businessNo;
         this.apiSecret = apiSecret;
-        this.session = new Session(businessNo, apiSecret);
+        this.websocketSession = new WebsocketSession(businessNo, apiSecret);
         this.store = new Store();
     }
 
@@ -78,11 +82,12 @@ public class ApiClient {
     }
 
     public void subscribe(Subscription subscription) {
-        session.subscribe(subscription, store);
+        websocketSession.subscribe(subscription, store);
     }
 
+
     public void unSubscribe(Subscription subscription) {
-        session.unSubscribe(subscription, store);
+        websocketSession.unSubscribe(subscription, store);
     }
 
     public static JSONObject depth(String symbol) throws IOException {

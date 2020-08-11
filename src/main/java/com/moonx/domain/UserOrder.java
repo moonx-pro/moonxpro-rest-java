@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
-public class OrderDetails {
+public class UserOrder {
     private BigDecimal filledQty;
 
     private BigDecimal remainingQty;

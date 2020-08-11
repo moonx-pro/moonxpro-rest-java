@@ -1,19 +1,22 @@
 package com.moonx.api;
 
 import com.alibaba.fastjson.JSONObject;
+import com.moonx.domain.UserAsset;
+import com.moonx.domain.UserFill;
+import com.moonx.domain.UserOrder;
+import com.moonx.domain.UserPosition;
 import com.moonx.dto.request.*;
 import com.moonx.enums.ExecutionType;
 import com.moonx.enums.OrderSide;
 import com.moonx.enums.OrderType;
 import com.moonx.enums.TimeInForce;
+import com.moonx.ws.StoreListener;
 import com.moonx.ws.StreamKey;
 import com.moonx.ws.Subscription;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class Main {
     static final String BUSINESS_NO = "Change_Here";
@@ -22,7 +25,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             ApiClient client = new ApiClient(BUSINESS_NO, API_SECRET);
-            //publicApiTest();
+            publicApiTest();
             //futuresApiTest(client);
             //spotApiTest(client);
             websocketTest(client);
@@ -206,18 +209,49 @@ public class Main {
     static void websocketTest(ApiClient client) throws IOException {
         /************************* Websocket **************************/
         client.subscribe(new Subscription().streamKey(StreamKey.parse("stack@btc_eth")).throttleMillis(2000));
+        client.subscribe(new Subscription().streamKey(StreamKey.parse("trade@usdt_btc")));
+        client.subscribe(new Subscription().streamKey(StreamKey.parse("stat")).put("symbol", "*_ETH").throttleMillis(5000));
         client.subscribe(new Subscription().streamKey(StreamKey.parse("user-future")));
         client.subscribe(new Subscription().streamKey(StreamKey.parse("user-order")));
         client.subscribe(new Subscription().streamKey(StreamKey.parse("user-trade")));
         client.subscribe(new Subscription().streamKey(StreamKey.parse("user-asset")));
 
+
+        StoreListener sl = new StoreListener() {
+            @Override
+            public void userAsset(UserAsset userAsset) {
+                System.out.println("Change in user asset::" + userAsset.toString());
+            }
+
+            @Override
+            public void userOrder(UserOrder order) {
+                System.out.println("Change in user order::" + order.toString());
+            }
+
+            @Override
+            public void userPosition(UserPosition position) {
+                System.out.println("Change in user position::" + position.toString());
+            }
+
+            @Override
+            public void userFill(UserFill fill) {
+                System.out.println("New fill notification::" + fill.toString());
+            }
+        };
+
+        // Add listeners
+        client.store().addListener(sl);
+
+        // Remove listeners
+        //client.store().removeListener(sl);
+
         //Un-subscribing stack@btc_usd after 10 seconds.
-        new Timer().schedule(new TimerTask() {
+        /*new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 client.unSubscribe(new Subscription().streamKey(StreamKey.parse("stack@btc_eth")));
             }
-        }, 10000L);
+        }, 10000L);*/
     }
 
 

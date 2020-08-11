@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class FutureInfo {
+public class UserPosition {
     private long uid;
     private String symbol;
     private BigDecimal leverage;

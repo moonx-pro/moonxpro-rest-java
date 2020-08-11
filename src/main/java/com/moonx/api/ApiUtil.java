@@ -26,7 +26,7 @@ public class ApiUtil {
     static final int WRITE_TIMEOUT = 60;
 
 
-    static final String API_HOST = System.getProperty("moonx.api.host", "exchange-demo.moonx.pro");
+    static final String API_HOST = System.getProperty("moonx.api.host", "exchange.moonx.pro");
     static final boolean API_SSL = Boolean.parseBoolean(System.getProperty("moonx.api.ssl", "true"));
     static final String API_URL = (API_SSL ? "https" : "http") + "://" + API_HOST;
 

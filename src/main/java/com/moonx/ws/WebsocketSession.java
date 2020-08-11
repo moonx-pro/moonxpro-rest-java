@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.moonx.ws.ClientMessageType.Activate;
 
-public class Session extends WebSocketListener {
+public class WebsocketSession extends WebSocketListener {
 
     private String businessNo;
     private String apiSecret;
@@ -35,13 +35,13 @@ public class Session extends WebSocketListener {
     static final String API_URL = (API_SSL ? "wss" : "ws") + "://" + API_HOST + "/stream";
     static final long RECONNECTION_DELAY = 2000L;
 
-    public Session(String businessNo, String apiSecret) {
+    public WebsocketSession(String businessNo, String apiSecret) {
         this.businessNo = businessNo;
         this.apiSecret = apiSecret;
         connect();
     }
 
-    Session connect() {
+    WebsocketSession connect() {
         log("Attempting to connect");
         Request request = new Request.Builder().url(API_URL).build();
         try {
@@ -144,10 +144,10 @@ public class Session extends WebSocketListener {
 
     public void onMessage(WebSocket webSocket, String text) {
         JSONObject o = JSON.parseObject(text);
-        log("message :: " + o);
         ServerMessageType type = ServerMessageType.parse(o.getString(Field.Type.value()));
         switch (type) {
             case Snapshot:
+                log("message :: " + o);
             case DeltaUpdate:
                 StreamKey streamKey = StreamKey.parse(o.getString(Field.StreamName.value()));
                 Message msg = new Message(type, streamKey, o.getLong(Field.SeqNo.value()), o.get(Field.Data.value()));

@@ -8,8 +8,6 @@ import java.math.BigDecimal;
 public class UserAsset {
     private long userId;
 
-    private String accountNo;
-
     private String assetCode;
 
     private BigDecimal amountAvailable;

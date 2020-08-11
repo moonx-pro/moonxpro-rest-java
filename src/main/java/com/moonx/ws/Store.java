@@ -1,52 +1,79 @@
 package com.moonx.ws;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.moonx.domain.FillDetails;
-import com.moonx.domain.FutureInfo;
-import com.moonx.domain.OrderDetails;
-import com.moonx.domain.UserAsset;
+import com.moonx.domain.*;
+import lombok.Getter;
 
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+@Getter
 public class Store implements StreamListener {
 
-    Map<String, FutureInfo> futureInfos = new ConcurrentHashMap<>();
-    Map<String, FillDetails> fills = new ConcurrentHashMap<>();
-    Map<String, OrderDetails> orders = new ConcurrentHashMap<>();
-    Map<String, UserAsset> userAsset = new ConcurrentHashMap<>();
+    private static final Comparator<MarketTrade> marketTradeComparator = Comparator.comparing(MarketTrade::getTime).reversed();
+
+    Map<String, UserPosition> userPositions = new ConcurrentHashMap<>();
+    Map<String, UserFill> userFills = new ConcurrentHashMap<>();
+    Map<String, UserOrder> userOrders = new ConcurrentHashMap<>();
+    Map<String, UserAsset> userAssets = new ConcurrentHashMap<>();
+    Map<String, LinkedList<MarketTrade>> trades = new ConcurrentHashMap<>();
+    Map<String, MarketStat> stats = new ConcurrentHashMap<>();
+    List<StoreListener> listeners = new CopyOnWriteArrayList<>();
+
+
 
     @Override
     public void delta(Message msg) {
         switch (msg.streamKey().getFlavour()) {
-            case OrderStack:
-                break;
             case Trade:
-                break;
-            case Stat:
+                String symbol = msg.streamKey.getSubKey().toUpperCase();
+                MarketTrade newTrade = msg.<JSONObject>data().toJavaObject(MarketTrade.class);
+                Optional.ofNullable(trades.get(symbol))
+                        .ifPresent(l -> {
+                            l.removeLast();
+                            l.addFirst(newTrade);
+                        });
+                trades.putIfAbsent(symbol, Stream.of(newTrade).collect(Collectors.toCollection(LinkedList::new)));
+                System.out.println(trades.toString());
                 break;
             case Index:
                 break;
             case UserOrder:
                 Optional.ofNullable(msg.<JSONObject>data())
-                        .map(o -> o.toJavaObject(OrderDetails.class))
-                        .ifPresent(o -> orders.put(o.getSymbol(), o));
+                        .map(o -> o.toJavaObject(UserOrder.class))
+                        .ifPresent(o -> {
+                            userOrders.put(o.getSymbol(), o);
+                            notifyListener(l -> l.userOrder(o));
+                        });
                 break;
             case UserTrade:
                 Optional.ofNullable(msg.<JSONObject>data())
-                        .map(o -> o.toJavaObject(FillDetails.class))
-                        .ifPresent(o -> fills.put(o.getSymbol(), o));
+                        .map(o -> o.toJavaObject(UserFill.class))
+                        .ifPresent(o -> {
+                            userFills.put(o.getSymbol(), o);
+                            notifyListener(l -> l.userFill(o));
+                        });
                 break;
             case FutureInfo:
                 Optional.ofNullable(msg.<JSONObject>data())
-                        .map(o -> o.toJavaObject(FutureInfo.class))
-                        .ifPresent(o -> futureInfos.put(o.getSymbol(), o));
+                        .map(o -> o.toJavaObject(UserPosition.class))
+                        .ifPresent(o -> {
+                            userPositions.put(o.getSymbol(), o);
+                            notifyListener(l -> l.userPosition(o));
+                        });
                 break;
             case UserAsset:
                 Optional.ofNullable(msg.<JSONObject>data())
                         .map(o -> o.toJavaObject(UserAsset.class))
-                        .ifPresent(o -> userAsset.put(o.getAssetCode(), o));
+                        .ifPresent(o -> {
+                            userAssets.put(o.getAssetCode(), o);
+                            notifyListener(l -> l.userAsset(o));
+                        });
                 break;
         }
     }
@@ -57,6 +84,14 @@ public class Store implements StreamListener {
             case OrderStack:
                 break;
             case Trade:
+                trades.clear();
+                LinkedList<MarketTrade> list = msg.<JSONArray>data()
+                        .stream()
+                        .map(x -> (JSONObject) x)
+                        .map(x -> x.toJavaObject(MarketTrade.class))
+                        .collect(Collectors.toCollection(LinkedList::new));
+                trades.put(msg.streamKey.getSubKey().toUpperCase(), list);
+                System.out.println(trades.toString());
                 break;
             case Kline:
                 break;
@@ -65,43 +100,43 @@ public class Store implements StreamListener {
             case Index:
                 break;
             case UserOrder:
-                orders.clear();
+                userOrders.clear();
                 Optional.ofNullable(msg.<JSONObject>data())
                         .map(o -> o.getJSONArray("list"))
                         .ifPresent(o -> o.stream()
                                 .map(x -> (JSONObject) x)
-                                .map(x -> x.toJavaObject(OrderDetails.class))
-                                .forEach(x -> orders.put(x.getSymbol(), x))
+                                .map(x -> x.toJavaObject(UserOrder.class))
+                                .forEach(x -> userOrders.put(x.getSymbol(), x))
                         );
                 break;
             case UserTrade:
-                fills.clear();
+                userFills.clear();
                 Optional.ofNullable(msg.<JSONObject>data())
                         .map(o -> o.getJSONArray("list"))
                         .ifPresent(o -> o.stream()
                                 .map(x -> (JSONObject) x)
-                                .map(x -> x.toJavaObject(FillDetails.class))
-                                .forEach(x -> fills.put(x.getSymbol(), x))
+                                .map(x -> x.toJavaObject(UserFill.class))
+                                .forEach(x -> userFills.put(x.getSymbol(), x))
                         );
                 break;
             case FutureInfo:
-                futureInfos.clear();
+                userPositions.clear();
                 Optional.ofNullable(msg.<JSONObject>data())
                         .map(o -> o.getJSONArray("list"))
                         .ifPresent(o -> o.stream()
                                 .map(x -> (JSONObject) x)
-                                .map(x -> x.toJavaObject(FutureInfo.class))
-                                .forEach(x -> futureInfos.put(x.getSymbol(), x))
+                                .map(x -> x.toJavaObject(UserPosition.class))
+                                .forEach(x -> userPositions.put(x.getSymbol(), x))
                         );
                 break;
             case UserAsset:
-                userAsset.clear();
+                userAssets.clear();
                 Optional.ofNullable(msg.<JSONObject>data())
                         .map(o -> o.getJSONArray("list"))
                         .ifPresent(o -> o.stream()
                                 .map(x -> (JSONObject) x)
                                 .map(x -> x.toJavaObject(UserAsset.class))
-                                .forEach(x -> userAsset.put(x.getAssetCode(), x))
+                                .forEach(x -> userAssets.put(x.getAssetCode(), x))
                         );
                 break;
         }
@@ -110,5 +145,18 @@ public class Store implements StreamListener {
     @Override
     public void disconnected() {
 
+    }
+
+    public void addListener(StoreListener listener){
+        listeners.add(listener);
+
+    }
+
+    public void removeListener(StoreListener listener){
+        listeners.remove(listener);
+    }
+
+    private void notifyListener(Consumer<StoreListener> listenerConsumer){
+        listeners.forEach(listenerConsumer);
     }
 }

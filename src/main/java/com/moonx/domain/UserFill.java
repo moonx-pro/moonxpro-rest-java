@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
-public class FillDetails {
+public class UserFill {
     private InstrumentType itype;
 
     private long id;
